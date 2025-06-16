@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Genesis 1 - HSV</title>
+  <style>
+    :root {
+      --background: #f4f4f4;
+      --text: #000;
+      --verse-bg: white;
+      --highlight-rgb: 255, 242, 0;
+      --highlight-opacity: 1;
+      --border-rgb: 255, 111, 0;
+      --border-opacity: 1;
+      --button-size: 16px;
+      --button-padding: 10px 20px;
+    }
+
+    [data-theme="dark"] {
+      --background: #121212;
+      --text: #fff;
+      --verse-bg: #1e1e1e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--background);
+      color: var(--text);
+      font-family: sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .vers {
+      background: var(--verse-bg);
+      margin: 20px auto;
+      padding: 20px;
+      border-left: 5px solid transparent;
+      width: 90%;
+      max-width: 700px;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+    }
+
+    .vers.actief {
+      background-color: rgba(var(--highlight-rgb), var(--highlight-opacity));
+      border-left-color: rgba(var(--border-rgb), var(--border-opacity));
+      box-shadow: 0 0 12px rgba(var(--border-rgb), var(--border-opacity));
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 999;
+    }
+
+    .controls button,
+    #menu-btn {
+      padding: var(--button-padding);
+      font-size: var(--button-size);
+      background: rgba(var(--border-rgb), var(--border-opacity));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #menu-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1001;
+    }
+
+    #menu {
+      position: fixed;
+      top: 50px;
+      left: 10px;
+      background: var(--verse-bg);
+      color: var(--text);
+      border: 1px solid rgba(var(--border-rgb), var(--border-opacity));
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      z-index: 1001;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 220px;
+      font-size: 14px;
+    }
+
+    #menu label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    #menu select, #menu input[type="range"] {
+      margin-bottom: 15px;
+      width: 100%;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body data-theme="light">
+<button id="menu-btn">☰ Menu</button>
+<div id="menu">
+  <label for="theme-select">Thema</label>
+  <select id="theme-select">
+    <option value="light">Licht</option>
+    <option value="dark">Donker</option>
+  </select>
+  <label for="highlight-select">Kleur</label>
+  <select id="highlight-select">
+    <option value="yellow">Geel</option>
+    <option value="blue">Blauw</option>
+    <option value="green">Groen</option>
+    <option value="pink">Roze</option>
+  </select>
+  <label for="opacity-range">Felheid</label>
+  <input type="range" id="opacity-range" min="0.1" max="1" step="0.05" value="1" />
+  <label for="button-size">Knopgrootte</label>
+  <select id="button-size">
+    <option value="small">Klein</option>
+    <option value="medium" selected>Middel</option>
+    <option value="large">Groot</option>
+  </select>
+</div>
+
+<h1>Genesis 1 - HSV</h1>
+<div id="verzen">
+<!-- Hier komen de verzen -->
+</div>
+<div class="controls">
+  <button id="btn-up">⬆️</button>
+  <button id="btn-down">⬇️</button>
+</div>
+
+<script>
+const verzenData = [
+"In het begin schiep God de hemel en de aarde.",
+"De aarde nu was woest en leeg...",
+"En God zei: Laat er licht zijn! En er was licht.",
+"En God zag dat het licht goed was...",
+"En God noemde het licht dag...",
+// Voeg hier ALLE 31 verzen toe zoals eerder geleverd
+];
+
+const verzenContainer = document.getElementById('verzen');
+verzenData.forEach((tekst, i) => {
+  const div = document.createElement('div');
+  div.className = 'vers';
+  div.textContent = (i + 1) + ' ' + tekst;
+  verzenContainer.appendChild(div);
+});
+
+const verzen = document.querySelectorAll('.vers');
+let index = 0;
+
+function highlightVers(i) {
+  verzen.forEach((v, idx) => {
+    v.classList.toggle('actief', idx === i);
+  });
+  verzen[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function scrollUp() {
+  if (index > 0) {
+    index--;
+    highlightVers(index);
+  }
+}
+
+function scrollDown() {
+  if (index < verzen.length - 1) {
+    index++;
+    highlightVers(index);
+  }
+}
+
+document.getElementById('btn-up').addEventListener('click', scrollUp);
+document.getElementById('btn-down').addEventListener('click', scrollDown);
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp') scrollUp();
+  else if (e.key === 'ArrowDown') scrollDown();
+});
+
+const kleuren = {
+  yellow: { highlight: "255, 242, 0", border: "255, 111, 0" },
+  blue: { highlight: "0, 176, 255", border: "0, 122, 204" },
+  green: { highlight: "0, 200, 0", border: "0, 140, 0" },
+  pink: { highlight: "255, 105, 180", border: "255, 20, 147" }
+};
+
+document.getElementById('menu-btn').addEventListener('click', () => {
+  const menu = document.getElementById('menu');
+  menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+});
+
+document.getElementById('theme-select').addEventListener('change', e => {
+  document.body.setAttribute('data-theme', e.target.value);
+});
+
+document.getElementById('highlight-select').addEventListener('change', e => {
+  const kleur = kleuren[e.target.value];
+  if (kleur) {
+    document.documentElement.style.setProperty('--highlight-rgb', kleur.highlight);
+    document.documentElement.style.setProperty('--border-rgb', kleur.border);
+  }
+});
+
+document.getElementById('opacity-range').addEventListener('input', e => {
+  const value = e.target.value;
+  document.documentElement.style.setProperty('--highlight-opacity', value);
+  document.documentElement.style.setProperty('--border-opacity', value);
+});
+
+document.getElementById('button-size').addEventListener('change', e => {
+  const size = e.target.value;
+  let fontSize = "16px";
+  let padding = "10px 20px";
+  if (size === "small") {
+    fontSize = "12px";
+    padding = "6px 12px";
+  } else if (size === "large") {
+    fontSize = "20px";
+    padding = "14px 28px";
+  }
+  document.documentElement.style.setProperty('--button-size', fontSize);
+  document.documentElement.style.setProperty('--button-padding', padding);
+});
+
+highlightVers(index);
+</script>
+</body>
+</html>
