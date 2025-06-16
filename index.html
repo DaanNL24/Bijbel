@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bijbel Boeken - Overzicht</title>
+  <style>
+    :root {
+      --background: #f4f4f4;
+      --text: #000;
+      --verse-bg: white;
+      --highlight-rgb: 255, 242, 0;
+      --highlight-opacity: 1;
+      --border-rgb: 255, 111, 0;
+      --border-opacity: 1;
+      --button-size: 16px;
+      --button-padding: 10px 20px;
+      --radius: 12px;
+      --gap: 16px;
+      --max-width: 900px;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --background: #121212;
+      --text: #fff;
+      --verse-bg: #1e1e1e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--background);
+      color: var(--text);
+      font-family: var(--font-family);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 80px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 24px 0 40px;
+      font-weight: 700;
+      font-size: 2rem;
+      max-width: var(--max-width);
+      width: 100%;
+    }
+
+    #books-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--gap);
+      max-width: var(--max-width);
+      width: 100%;
+    }
+
+    .book-card {
+      background: var(--verse-bg);
+      color: var(--text);
+      padding: 16px 20px;
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease,
+        border-color 0.3s ease;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+    }
+
+    .book-card:hover,
+    .book-card:focus-visible {
+      outline: none;
+      background-color: rgba(var(--highlight-rgb), var(--highlight-opacity));
+      border-color: rgba(var(--border-rgb), var(--border-opacity));
+      box-shadow: 0 0 14px rgba(var(--border-rgb), var(--border-opacity));
+      color: var(--text);
+      font-weight: 700;
+      transform: translateY(-3px);
+    }
+
+    .section-title {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin: 40px 0 20px 0;
+      width: 100%;
+      max-width: var(--max-width);
+      border-bottom: 3px solid rgba(var(--border-rgb), var(--border-opacity));
+      padding-bottom: 6px;
+    }
+
+    /* Controls and menu styling */
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 999;
+    }
+
+    .controls button,
+    #menu-btn {
+      padding: var(--button-padding);
+      font-size: var(--button-size);
+      background: rgba(var(--border-rgb), var(--border-opacity));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transition: background-color 0.3s ease;
+    }
+    .controls button:hover,
+    #menu-btn:hover,
+    .controls button:focus,
+    #menu-btn:focus {
+      background: rgba(var(--border-rgb), 0.85);
+      outline: none;
+    }
+
+    #menu-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 1001;
+      padding: 12px 16px;
+      font-size: 20px;
+      border-radius: 10px;
+      background: rgba(var(--border-rgb), var(--border-opacity));
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      user-select: none;
+    }
+
+    #menu {
+      position: fixed;
+      top: 60px;
+      left: 16px;
+      background: var(--verse-bg);
+      color: var(--text);
+      border: 1px solid rgba(var(--border-rgb), var(--border-opacity));
+      padding: 16px 20px;
+      border-radius: 12px;
+      display: none;
+      z-index: 1001;
+      box-shadow: 0 0 14px rgba(0, 0, 0, 0.15);
+      width: 260px;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    #menu label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    #menu select,
+    #menu input[type="range"] {
+      margin-bottom: 16px;
+      padding: 6px 8px;
+      width: 100%;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background-color: var(--verse-bg);
+      color: var(--text);
+      transition: border-color 0.3s ease;
+      appearance: none;
+      cursor: pointer;
+    }
+    #menu select:focus,
+    #menu input[type="range"]:focus {
+      outline: none;
+      border-color: rgba(var(--border-rgb), var(--border-opacity));
+      box-shadow: 0 0 8px rgba(var(--border-rgb), var(--border-opacity));
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      #menu {
+        width: 90vw;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 60px;
+      }
+      body {
+        padding-bottom: 140px;
+      }
+      .book-card {
+        height: 54px;
+        font-size: 1rem;
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <button id="menu-btn" aria-label="Open instellingenmenu" aria-expanded="false" aria-controls="menu">☰</button>
+
+  <div id="menu" role="region" aria-labelledby="menu-btn" tabindex="-1">
+    <label for="theme-select">Thema</label>
+    <select id="theme-select" aria-describedby="theme-desc">
+      <option value="light" selected>Licht</option>
+      <option value="dark">Donker</option>
+    </select>
+
+    <label for="highlight-select">Markeerkleur</label>
+    <select id="highlight-select" aria-describedby="highlight-desc">
+      <option value="yellow" selected>Geel</option>
+      <option value="blue">Blauw</option>
+      <option value="green">Groen</option>
+      <option value="pink">Roze</option>
+    </select>
+
+    <label for="opacity-range">Felheid</label>
+    <input type="range" id="opacity-range" min="0.1" max="1" step="0.05" value="1" aria-valuemin="0.1" aria-valuemax="1" aria-valuenow="1" />
+
+    <label for="button-size">Knopgrootte</label>
+    <select id="button-size">
+      <option value="small">Klein</option>
+      <option value="medium" selected>Middel</option>
+      <option value="large">Groot</option>
+    </select>
+  </div>
+
+  <h1>Bijbel Boeken</h1>
+
+  <div id="books-container" role="main" aria-label="Lijst bijbelboeken">
+    <div>
+      <h2 class="section-title" id="old-testament-title">Oude Testament</h2>
+      <div role="list" aria-labelledby="old-testament-title" id="old-testament" tabindex="0">
+        <!-- Boeken OT komen hier -->
+      </div>
+    </div>
+
+    <div>
+      <h2 class="section-title" id="new-testament-title">Nieuwe Testament</h2>
+      <div role="list" aria-labelledby="new-testament-title" id="new-testament" tabindex="0">
+        <!-- Boeken NT komen hier -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const boekenOT = [
+      {name: "Genesis", file: "genesis.html"},
+      {name: "Exodus", file: "exodus.html"},
+      {name: "Leviticus", file: "leviticus.html"},
+      {name: "Numeri", file: "numeri.html"},
+      {name: "Deuteronomium", file: "deuteronomium.html"},
+      {name: "Jozua", file: "jozua.html"},
+      {name: "Rechters", file: "rechters.html"},
+      {name: "Ruth", file: "ruth.html"},
+      {name: "1 Samuel", file: "1_samuel.html"},
+      {name: "2 Samuel", file: "2_samuel.html"},
+      {name: "1 Koningen", file: "1_koningen.html"},
+      {name: "2 Koningen", file: "2_koningen.html"},
+      {name: "1 Kronieken", file: "1_kronieken.html"},
+      {name: "2 Kronieken", file: "2_kronieken.html"},
+      {name: "Esra", file: "esra.html"},
+      {name: "Nehemia", file: "nehemia.html"},
+      {name: "Esther", file: "esther.html"},
+      {name: "Job", file: "job.html"},
+      {name: "Psalmen", file: "psalmen.html"},
+      {name: "Spreuken", file: "spreuken.html"},
+      {name: "Prediker", file: "prediker.html"},
+      {name: "Hooglied", file: "hooglied.html"},
+      {name: "Jesaja", file: "jesaja.html"},
+      {name: "Jeremia", file: "jeremia.html"},
+      {name: "Klaagliederen", file: "klageliederen.html"},
+      {name: "Ezechiël", file: "ezekiel.html"},
+      {name: "Daniël", file: "daniel.html"},
+      {name: "Hosea", file: "hosea.html"},
+      {name: "Joël", file: "joel.html"},
+      {name: "Amos", file: "amos.html"},
+      {name: "Obadja", file: "obadja.html"},
+      {name: "Jona", file: "jona.html"},
+      {name: "Micha", file: "micha.html"},
+      {name: "Nahum", file: "nahum.html"},
+      {name: "Habakuk", file: "habakuk.html"},
+      {name: "Sofoniás", file: "sofonias.html"},
+      {name: "Haggai", file: "haggai.html"},
+      {name: "Zacharia", file: "zacharia.html"},
+      {name: "Maleachi", file: "maleachi.html"}
+    ];
+
+    const boekenNT = [
+      {name: "Mattheüs", file: "mattheus.html"},
+      {name: "Markus", file: "markus.html"},
+      {name: "Lukas", file: "lukas.html"},
+      {name: "Johannes", file: "johannes.html"},
+      {name: "Handelingen", file: "handelingen.html"},
+      {name: "Romeinen", file: "romeinen.html"},
+      {name: "1 Korinthiërs", file: "1_korinthiers.html"},
+      {name: "2 Korinthiërs", file: "2_korinthiers.html"},
+      {name: "Galaten", file: "galaten.html"},
+      {name: "Efeziërs", file: "efesen.html"},
+      {name: "Filippenzen", file: "filippenzen.html"},
+      {name: "Kolossenzen", file: "kolossenzen.html"},
+      {name: "1 Thessalonicenzen", file: "1_thessalonicenzen.html"},
+      {name: "2 Thessalonicenzen", file: "2_thessalonicenzen.html"},
+      {name: "1 Timoteüs", file: "1_timoteus.html"},
+      {name: "2 Timoteüs", file: "2_timoteus.html"},
+      {name: "Titus", file: "titus.html"},
+      {name: "Filemon", file: "filemon.html"},
+      {name: "Hebreeën", file: "hebreen.html"},
+      {name: "Jakobus", file: "jakobus.html"},
+      {name: "1 Petrus", file: "1_petrus.html"},
+      {name: "2 Petrus", file: "2_petrus.html"},
+      {name: "1 Johannes", file: "1_johannes.html"},
+      {name: "2 Johannes", file: "2_johannes.html"},
+      {name: "3 Johannes", file: "3_johannes.html"},
+      {name: "Juda", file: "juda.html"},
+      {name: "Openbaring", file: "openbaring.html"}
+    ];
+
+    function createBookCard(book) {
+      const a = document.createElement('a');
+      a.textContent = book.name;
+      a.href = book.file;
+      a.className = 'book-card';
+      a.setAttribute('role','listitem');
+      a.tabIndex = 0;
+      return a;
+    }
+
+    const containerOT = document.getElementById('old-testament');
+    boekenOT.forEach(b => containerOT.appendChild(createBookCard(b)));
+
+    const containerNT = document.getElementById('new-testament');
+    boekenNT.forEach(b => containerNT.appendChild(createBookCard(b)));
+
+    // Toggle menu visibility
+    const menuBtn = document.getElementById('menu-btn');
+    const menu = document.getElementById('menu');
+
+    menuBtn.addEventListener('click', () => {
+      const isVisible = menu.style.display === 'block';
+      menu.style.display = isVisible ? 'none' : 'block';
+      menuBtn.setAttribute('aria-expanded', String(!isVisible));
+      if (!isVisible) {
+        menu.focus();
+      }
+    });
+
+    // Close menu if click outside
+    document.addEventListener('click', e => {
+      if (!menu.contains(e.target) && e.target !== menuBtn) {
+        menu.style.display = 'none';
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Theme toggle
+    const themeSelect = document.getElementById('theme-select');
+    themeSelect.addEventListener('change', e => {
+      document.body.setAttribute('data-theme', e.target.value);
+    });
+
+    // Highlight color
+    const kleuren = {
+      yellow: { highlight: "255, 242, 0", border: "255, 111, 0" },
+      blue: { highlight: "0, 176, 255", border: "0, 122, 204" },
+      green: { highlight: "0, 200, 0", border: "0, 140, 0" },
+      pink: { highlight: "255, 105, 180", border: "255, 20, 147" }
+    };
+
+    const highlightSelect = document.getElementById('highlight-select');
+    highlightSelect.addEventListener('change', e => {
+      const kleur = kleuren[e.target.value];
+      if (kleur) {
+        document.documentElement.style.setProperty('--highlight-rgb', kleur.highlight);
+        document.documentElement.style.setProperty('--border-rgb', kleur.border);
+      }
+    });
+
+    // Opacity slider
+    const opacityRange = document.getElementById('opacity-range');
+    opacityRange.addEventListener('input', e => {
+      const value = e.target.value;
+      document.documentElement.style.setProperty('--highlight-opacity', value);
+      document.documentElement.style.setProperty('--border-opacity', value);
+      opacityRange.setAttribute('aria-valuenow', value);
+    });
+
+    // Button size selector
+    const buttonSizeSelect = document.getElementById('button-size');
+    buttonSizeSelect.addEventListener('change', e => {
+      const size = e.target.value;
+      let fontSize = "16px";
+      let padding = "10px 20px";
+      if (size === "small") {
+        fontSize = "12px";
+        padding = "6px 12px";
+      } else if (size === "large") {
+        fontSize = "20px";
+        padding = "14px 28px";
+      }
+      document.documentElement.style.setProperty('--button-size', fontSize);
+      document.documentElement.style.setProperty('--button-padding', padding);
+    });
+
+    // Init set properties
+    (function init() {
+      // Set default highlight and border colors
+      const defaultColor = kleuren['yellow'];
+      document.documentElement.style.setProperty('--highlight-rgb', defaultColor.highlight);
+      document.documentElement.style.setProperty('--border-rgb', defaultColor.border);
+      // Set default theme attribute
+      document.body.setAttribute('data-theme', 'light');
+    })();
+
+  </script>
+</body>
+</html>
+
